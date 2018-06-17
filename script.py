@@ -44,5 +44,30 @@ classified_train_points = classify(train_points)
 sorted = sorted(classified_train_points, key = (operator.itemgetter(0)))
 
 
+def knn_classifier(k, train_points, test_point):
+    distances = []
+    test_x = test_point[0]
+    test_y = test_point[1]
+    for point in range(num_points):
+        train_x = train_points[point][0]
+        train_y = train_points[point][1]
+        distance = np.sqrt(np.square(test_x - train_x) + np.square(test_y - train_y))
+        distances = np.append(distances, distance)
+    print(distances)
 
-def knn_classifier(points):
+    a = (num_points, 2)
+    indexed_distances = np.array(a)
+    for i in range(len(distances)):
+        indexed_distances.append([])
+        indexed_distances[i].append(i)
+        indexed_distances[i].append(distances[i])
+
+    print(indexed_distances)
+    distances_sorted = sorted(indexed_distances, key=(operator.itemgetter(1)))
+    print(distances_sorted)
+
+
+
+for i in range(num_points):
+    test_point = test_points[i]
+    knn_classifier(3, train_points, test_point)
