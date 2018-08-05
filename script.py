@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import operator
 
-num_points = 5
+num_points = 599
 
 # draw a graph with x-range [-10,10], y-range [-10,10]
 # with a sin(x * 2pi/10)*5
@@ -14,6 +14,7 @@ plt.plot(x, y)
 train_points = np.random.randint(low = -10, high = 10, size = (num_points, 2))
 test_points = np.random.randint(low = -10, high = 10, size = (num_points, 2))
 
+# for plotting the points using pyplot
 x_points = []
 y_points = []
 for i in range(num_points):
@@ -41,9 +42,9 @@ def classify(points):
     return classified
 
 classified_train_points = classify(train_points)
-sorted = sorted(classified_train_points, key = (operator.itemgetter(0)))
+# sorted = sorted(classified_train_points, key = (operator.itemgetter(0)))
 
-
+# returns the guessed value of the given test point
 def knn_classifier(k, train_points, test_point):
     distances = []
     test_x = test_point[0]
@@ -53,21 +54,65 @@ def knn_classifier(k, train_points, test_point):
         train_y = train_points[point][1]
         distance = np.sqrt(np.square(test_x - train_x) + np.square(test_y - train_y))
         distances = np.append(distances, distance)
-    print(distances)
+    # print("Distances:", distances)
 
-    a = (num_points, 2)
-    indexed_distances = np.array(a)
-    for i in range(len(distances)):
-        indexed_distances.append([])
-        indexed_distances[i].append(i)
-        indexed_distances[i].append(distances[i])
+    indices = []
+    t = 0
+    while len(indices) < k:
+        shortest = distances[t]
+        index = t
+        while shortest == -1.0:
+            shortest = distances[t + 1]
+            index = t + 1
+        for i in range(1, len(distances)):
+            if distances[i] != -1.0 and distances[i] < shortest:
+                shortest = distances[i]
+                index = i
+        indices.append(index)
+        distances[index] = -1
 
-    print(indexed_distances)
-    distances_sorted = sorted(indexed_distances, key=(operator.itemgetter(1)))
-    print(distances_sorted)
+    # print("Indices of shortest distances of training points to the test point:", indices)
+    return indices
 
-
-
+# classifies each test point
+tested_classifications = []
 for i in range(num_points):
     test_point = test_points[i]
-    knn_classifier(3, train_points, test_point)
+    indices = knn_classifier(3, train_points, test_point)
+    values = []
+    for index in indices:
+        values.append(classified_train_points[index][2])
+
+    # count the majority classifications (above or below)
+    above_count = 0
+    below_count = 0
+    for j in values:
+        if j == 1.0:
+            above_count = above_count + 1
+        else:
+            below_count = below_count + 1
+    # print("Training Points Above:", above_count, "| Training Points Below:", below_count)
+
+    str_classification = "unknown"
+
+    if above_count > below_count:
+        str_classification = "above"
+        classification = 1
+    else:
+        str_classification = "below"
+        classification = 0
+
+    tested_classifications.append(classification)
+
+    # print("The test point", test_point, "is predicted to be", str_classification, "the sine wave.")
+    # print()
+
+# calculate error
+classified_test_points = classify(test_points)
+correct = 0
+for m in range(len(classified_test_points)):
+    if classified_test_points[m][2] == tested_classifications[m]:
+        correct = correct + 1
+
+percent_correct = correct / len(tested_classifications) * 100
+print(percent_correct, "percent of the classifications are correct.")
