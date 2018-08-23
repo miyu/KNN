@@ -1,17 +1,21 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import operator
+import random as r
+import math
 
-num_points = 599
+num_points = 9
 
 # draw a graph with x-range [-10,10], y-range [-10,10]
 # with a sin(x * 2pi/10)*5
-x = np.arange(-10, 11)
-y = np.sin(x * 2 * np.pi / 10) * 5
+x = [i for i in range(-10, 11)]
+y = [math.sin(i * 2.0 * math.pi / 10.0) * 5.0 for i in x]
 plt.plot(x, y)
 
 # create the training points and test points
-train_points = np.random.randint(low = -10, high = 10, size = (num_points, 2))
+train_points = [[r.randrange(start = -10, stop = 10), r.randrange(start = -10, stop = 10)]
+                for i in range(num_points)]
+# train_points = np.random.randint(low = -10, high = 10, size = (num_points, 2))
 test_points = np.random.randint(low = -10, high = 10, size = (num_points, 2))
 
 # for plotting the points using pyplot
@@ -44,7 +48,7 @@ def classify(points):
 classified_train_points = classify(train_points)
 # sorted = sorted(classified_train_points, key = (operator.itemgetter(0)))
 
-# returns the guessed value of the given test point
+# returns k indices of the training point distances closest to the given test point
 def knn_classifier(k, train_points, test_point):
     distances = []
     test_x = test_point[0]
@@ -56,6 +60,7 @@ def knn_classifier(k, train_points, test_point):
         distances = np.append(distances, distance)
     # print("Distances:", distances)
 
+    # find k indices with the shortest distance to the test point
     indices = []
     t = 0
     while len(indices) < k:
@@ -107,7 +112,7 @@ for i in range(num_points):
     # print("The test point", test_point, "is predicted to be", str_classification, "the sine wave.")
     # print()
 
-# calculate error
+# calculate percent of calculations that are correct
 classified_test_points = classify(test_points)
 correct = 0
 for m in range(len(classified_test_points)):
