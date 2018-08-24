@@ -14,17 +14,17 @@ def plot_points(points):
     plt.plot([p[0] for p in points], [p[1] for p in points])
 
 def plot_labeled_points(points, labels, is_test):
-    for ((x, y), label) in list(zip(points, labels)):
+    for (x, y), label in zip(points, labels):
         marker = 'x' if is_test else '.'
         color = 'r' if label else 'b'
-        plt.plot([x], [y], marker + color)
+        plt.plot(x, y, marker + color)
 
 def ground_truth_threshold(x):
     return 5 * sin(x * 2 * pi / 10)
 
-def compute_label_knn(q, training_points, training_labels, n=5, distance_function=squared_norm2):
-    knn = heapq.nsmallest(n, zip(training_points, training_labels), key=lambda item: distance_function(q, item[0]))
-    return sum(int(label) for (p, label) in knn) > n / 2
+def compute_label_knn(q, points, labels, n=5, dist=squared_norm2):
+    indices = heapq.nsmallest(n, range(len(points)), key=lambda i: dist(q, points[i]))
+    return sum(labels[i] for i in indices) > n / 2
 
 def compute_label_ground_truth(p):
     return ground_truth_threshold(p[0]) < p[1]
