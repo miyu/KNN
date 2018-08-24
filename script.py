@@ -4,7 +4,7 @@ from operator import itemgetter
 import random as r
 import math
 
-num_points = 9
+num_points = 999
 k = 5
 
 # draw a graph with x-range [-10,10], y-range [-10,10]
@@ -53,30 +53,16 @@ def knn_classifier(k, train_points, test_point):
     # print("Indices of shortest distances of training points to the test point:", k_indices)
     return k_indices
 
-# classifies each test point
+# classifies each test point based on KNN
 tested_classifications = []
 for test_point in test_points:
     indices = knn_classifier(k, train_points, test_point)
-    values = [classified_train_points[index][2] for index in indices]
-
-    # count the majority classifications (above or below)
-    print(values)
-    num_train_points_above = sum(values)
-    num_train_points_below = k - num_train_points_above
-    print(num_train_points_above, num_train_points_below)
-    # print("Training Points Above:", num_train_points_above)
-
-    classification = num_train_points_above > num_train_points_below
-
+    train_values = [classified_train_points[index][2] for index in indices]
+    classification = sum(train_values) > k - sum(train_values)
     tested_classifications.append(classification)
 
-    # print("The test point", test_point, "is predicted to be", str_classification, "the sine wave.")
-
 # calculate percent of calculations that are correct
-correct = 0
-for m in range(len(classified_test_points)):
-    if classified_test_points[m][2] == tested_classifications[m]:
-        correct = correct + 1
-
+correct = sum([classified_test_points[index][2] == tested_classifications[index]
+               for index in range(len(classified_test_points))])
 percent_correct = correct / len(tested_classifications) * 100
 print(percent_correct, "percent of the classifications are correct.")
