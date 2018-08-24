@@ -5,6 +5,7 @@ import random as r
 import math
 
 num_points = 9
+k = 5
 
 # draw a graph with x-range [-10,10], y-range [-10,10]
 # with a sin(x * 2pi/10)*5
@@ -33,6 +34,7 @@ def classify(points):
     return classified
 
 classified_train_points = classify(train_points)
+classified_test_points = classify(test_points)
 
 # returns k indices of the training point distances closest to the given test point
 def knn_classifier(k, train_points, test_point):
@@ -54,39 +56,27 @@ def knn_classifier(k, train_points, test_point):
 # classifies each test point
 tested_classifications = []
 for test_point in test_points:
-    indices = knn_classifier(3, train_points, test_point)
+    indices = knn_classifier(k, train_points, test_point)
     values = [classified_train_points[index][2] for index in indices]
 
     # count the majority classifications (above or below)
-    above_count = 0
-    below_count = 0
-    for j in values:
-        if j == 1.0:
-            above_count = above_count + 1
-        else:
-            below_count = below_count + 1
-    # print("Training Points Above:", above_count, "| Training Points Below:", below_count)
+    print(values)
+    num_train_points_above = sum(values)
+    num_train_points_below = k - num_train_points_above
+    print(num_train_points_above, num_train_points_below)
+    # print("Training Points Above:", num_train_points_above)
 
-    str_classification = "unknown"
-
-    if above_count > below_count:
-        str_classification = "above"
-        classification = 1
-    else:
-        str_classification = "below"
-        classification = 0
+    classification = num_train_points_above > num_train_points_below
 
     tested_classifications.append(classification)
 
     # print("The test point", test_point, "is predicted to be", str_classification, "the sine wave.")
-    # print()
 
-# # calculate percent of calculations that are correct
-# classified_test_points = classify(test_points)
-# correct = 0
-# for m in range(len(classified_test_points)):
-#     if classified_test_points[m][2] == tested_classifications[m]:
-#         correct = correct + 1
-#
-# percent_correct = correct / len(tested_classifications) * 100
-# print(percent_correct, "percent of the classifications are correct.")
+# calculate percent of calculations that are correct
+correct = 0
+for m in range(len(classified_test_points)):
+    if classified_test_points[m][2] == tested_classifications[m]:
+        correct = correct + 1
+
+percent_correct = correct / len(tested_classifications) * 100
+print(percent_correct, "percent of the classifications are correct.")
