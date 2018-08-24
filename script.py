@@ -22,8 +22,8 @@ def plot_labeled_points(points, labels, is_test):
 def ground_truth_threshold(x):
     return 5 * sin(x * 2 * pi / 10)
 
-def compute_label_knn(q, training_data, n=5, distance_function=squared_norm2):
-    knn = heapq.nsmallest(n, training_data, key=lambda item: distance_function(q, item[0]))
+def compute_label_knn(q, training_points, training_labels, n=5, distance_function=squared_norm2):
+    knn = heapq.nsmallest(n, zip(training_points, training_labels), key=lambda item: distance_function(q, item[0]))
     return sum(int(label) for (p, label) in knn) > n / 2
 
 def compute_label_ground_truth(p):
@@ -35,12 +35,11 @@ plot_points([(x, ground_truth_threshold(x)) for x in arange(-10, 10, 0.01)])
 # plot training data
 training_points = random_points(1000)
 training_labels = [compute_label_ground_truth(p) for p in training_points]
-training_data = list(zip(training_points, training_labels))
 plot_labeled_points(training_points, training_labels, False)
 
 # plot test data
 test_points = random_points(500)
-test_classifications = [compute_label_knn(p, training_data) for p in test_points]
+test_classifications = [compute_label_knn(p, training_points, training_labels) for p in test_points]
 test_ground_truth_labels = [compute_label_ground_truth(p) for p in test_points]
 plot_labeled_points(test_points, test_classifications, True)
 plt.show()
