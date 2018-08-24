@@ -13,40 +13,26 @@ y = [math.sin(i * 2.0 * math.pi / 10.0) * 5.0 for i in x]
 plt.plot(x, y)
 
 # create the training points and test points
-train_points = [[r.randrange(start = -10, stop = 10), r.randrange(start = -10, stop = 10)]
+train_points = [[r.randrange(start = -10, stop = 11), r.randrange(start = -10, stop = 11)]
                 for i in range(num_points)]
-# train_points = np.random.randint(low = -10, high = 10, size = (num_points, 2))
-test_points = np.random.randint(low = -10, high = 10, size = (num_points, 2))
+test_points = [[r.randrange(start = -10, stop = 11), r.randrange(start = -10, stop = 11)]
+                for i in range(num_points)]
 
 # for plotting the points using pyplot
-x_points = []
-y_points = []
-for i in range(num_points):
-    x_points.append(train_points[i][0])
-    y_points.append(train_points[i][1])
+x_points = [x[0] for x in train_points]
+y_points = [y[1] for y in train_points]
 
 # Insert 500 points randomly within [-10, 10],[-10,10]. Label them "above" or
 # "below" depending on whether they're above or below the wave.
 plt.scatter(x_points, y_points)
 plt.show()
 
-# classifies training points as above or below the sine wave
+# classifies training points as above (True) or below (False) the sine wave
 def classify(points):
-    s = (num_points, 3)
-    classified = np.zeros(s)
-    for point in range(num_points):
-        x = points[point][0]
-        y = points[point][1]
-        sine_y = np.sin(x * 2 * np.pi / 10) * 5
-        if sine_y < y:
-            classification = True
-        else:
-            classification = False
-        classified[point] = np.append(points[point], classification)
+    classified = [[x, y, math.sin(x * 2 * math.pi / 10) * 5 < y] for [x, y] in points]
     return classified
 
 classified_train_points = classify(train_points)
-# sorted = sorted(classified_train_points, key = (operator.itemgetter(0)))
 
 # returns k indices of the training point distances closest to the given test point
 def knn_classifier(k, train_points, test_point):
