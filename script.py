@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import operator
+from operator import itemgetter
 import random as r
 import math
 
@@ -36,43 +36,26 @@ classified_train_points = classify(train_points)
 
 # returns k indices of the training point distances closest to the given test point
 def knn_classifier(k, train_points, test_point):
-    distances = []
     test_x = test_point[0]
     test_y = test_point[1]
-    for point in range(num_points):
-        train_x = train_points[point][0]
-        train_y = train_points[point][1]
-        distance = np.sqrt(np.square(test_x - train_x) + np.square(test_y - train_y))
-        distances = np.append(distances, distance)
+    distances = [math.sqrt(math.pow(test_x - train_x1, 2) + math.pow(test_y - train_y1, 2))
+                 for train_x1, train_y1 in train_points]
     # print("Distances:", distances)
 
     # find k indices with the shortest distance to the test point
-    indices = []
-    t = 0
-    while len(indices) < k:
-        shortest = distances[t]
-        index = t
-        while shortest == -1.0:
-            shortest = distances[t + 1]
-            index = t + 1
-        for i in range(1, len(distances)):
-            if distances[i] != -1.0 and distances[i] < shortest:
-                shortest = distances[i]
-                index = i
-        indices.append(index)
-        distances[index] = -1
+    temp = distances
+    indexed_distances = [[i, temp[i]] for i in range(len(temp))]
+    indexed_distances.sort(key=itemgetter(1))
+    k_indices = [indexed_distances[index][0] for index in range(k)]
 
-    # print("Indices of shortest distances of training points to the test point:", indices)
-    return indices
+    # print("Indices of shortest distances of training points to the test point:", k_indices)
+    return k_indices
 
 # classifies each test point
 tested_classifications = []
-for i in range(num_points):
-    test_point = test_points[i]
+for test_point in test_points:
     indices = knn_classifier(3, train_points, test_point)
-    values = []
-    for index in indices:
-        values.append(classified_train_points[index][2])
+    values = [classified_train_points[index][2] for index in indices]
 
     # count the majority classifications (above or below)
     above_count = 0
@@ -98,12 +81,12 @@ for i in range(num_points):
     # print("The test point", test_point, "is predicted to be", str_classification, "the sine wave.")
     # print()
 
-# calculate percent of calculations that are correct
-classified_test_points = classify(test_points)
-correct = 0
-for m in range(len(classified_test_points)):
-    if classified_test_points[m][2] == tested_classifications[m]:
-        correct = correct + 1
-
-percent_correct = correct / len(tested_classifications) * 100
-print(percent_correct, "percent of the classifications are correct.")
+# # calculate percent of calculations that are correct
+# classified_test_points = classify(test_points)
+# correct = 0
+# for m in range(len(classified_test_points)):
+#     if classified_test_points[m][2] == tested_classifications[m]:
+#         correct = correct + 1
+#
+# percent_correct = correct / len(tested_classifications) * 100
+# print(percent_correct, "percent of the classifications are correct.")
